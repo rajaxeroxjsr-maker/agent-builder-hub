@@ -4,8 +4,14 @@ import { toast } from "@/hooks/use-toast";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
-export function useChat() {
-  const [messages, setMessages] = useState<Message[]>([]);
+interface UseChatProps {
+  onAddMessage?: (message: Message) => void;
+  onUpdateMessage?: (messageId: string, content: string) => void;
+  initialMessages?: Message[];
+}
+
+export function useChat({ onAddMessage, onUpdateMessage, initialMessages = [] }: UseChatProps = {}) {
+  const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
 
   const sendMessage = useCallback(async (content: string) => {
@@ -19,6 +25,7 @@ export function useChat() {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    onAddMessage?.(userMessage);
     setIsLoading(true);
 
     try {
@@ -50,16 +57,15 @@ export function useChat() {
       let assistantContent = "";
       const assistantId = crypto.randomUUID();
 
-      // Create initial assistant message
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: assistantId,
-          role: "assistant",
-          content: "",
-          timestamp: new Date(),
-        },
-      ]);
+      const assistantMessage: Message = {
+        id: assistantId,
+        role: "assistant",
+        content: "",
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+      onAddMessage?.(assistantMessage);
 
       let buffer = "";
 
@@ -69,7 +75,6 @@ export function useChat() {
 
         buffer += decoder.decode(value, { stream: true });
 
-        // Process complete lines
         let newlineIndex: number;
         while ((newlineIndex = buffer.indexOf("\n")) !== -1) {
           let line = buffer.slice(0, newlineIndex);
@@ -92,6 +97,7 @@ export function useChat() {
                   m.id === assistantId ? { ...m, content: assistantContent } : m
                 )
               );
+              onUpdateMessage?.(assistantId, assistantContent);
             }
           } catch {
             // Partial JSON, will be completed in next chunk
@@ -105,15 +111,18 @@ export function useChat() {
         description: error instanceof Error ? error.message : "Failed to send message",
         variant: "destructive",
       });
-      // Remove the empty assistant message if there was an error
       setMessages((prev) => prev.filter((m) => m.content !== ""));
     } finally {
       setIsLoading(false);
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, onAddMessage, onUpdateMessage]);
 
   const clearChat = useCallback(() => {
     setMessages([]);
+  }, []);
+
+  const setMessagesFromConversation = useCallback((newMessages: Message[]) => {
+    setMessages(newMessages);
   }, []);
 
   return {
@@ -121,5 +130,6 @@ export function useChat() {
     isLoading,
     sendMessage,
     clearChat,
+    setMessagesFromConversation,
   };
 }
