@@ -54,7 +54,7 @@ export function EmptyState({ onSuggestionClick }: EmptyStateProps) {
         <Sparkles className="w-8 h-8 text-primary" />
       </div>
       
-      <h2 className="text-2xl font-semibold text-foreground mb-2">
+      <h2 className="text-2xl font-semibold text-foreground mb-2 tracking-tight">
         How can I help you today?
       </h2>
       <p className="text-muted-foreground text-center max-w-md mb-8">
