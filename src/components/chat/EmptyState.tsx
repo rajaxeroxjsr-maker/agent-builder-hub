@@ -59,7 +59,7 @@ export function EmptyState({ onSuggestionClick }: EmptyStateProps) {
         How can I help you today?
       </h2>
       <p className="text-muted-foreground text-center max-w-md mb-8">
-        Start a conversation or try one of these suggestions to get started.
+        Intelligence, Made Friendly — Start a conversation or try one of these suggestions.
       </p>
       
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl w-full">

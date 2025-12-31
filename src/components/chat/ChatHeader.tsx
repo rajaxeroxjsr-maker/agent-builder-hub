@@ -16,7 +16,7 @@ export function ChatHeader({ onClear, hasMessages }: ChatHeaderProps) {
         </div>
         <div>
           <h1 className="text-lg font-semibold text-foreground">lumora<span className="text-primary">.ai</span></h1>
-          <p className="text-xs text-muted-foreground">Your intelligent companion</p>
+          <p className="text-xs text-muted-foreground">Intelligence, Made Friendly</p>
         </div>
       </div>
       
