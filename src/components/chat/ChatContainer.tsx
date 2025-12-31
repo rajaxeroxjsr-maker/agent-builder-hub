@@ -23,13 +23,14 @@ export function ChatContainer() {
   const showTypingIndicator = isLoading && messages[messages.length - 1]?.role === "user";
 
   return (
-    <div className="flex flex-col h-screen bg-background relative overflow-hidden noise-overlay">
-      {/* Ambient background effects */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-gradient-start/[0.03] blur-[120px] animate-float" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-gradient-end/[0.03] blur-[100px] animate-float" style={{ animationDelay: '-3s' }} />
-        <div className="absolute top-[40%] right-[20%] w-[30%] h-[30%] rounded-full bg-gradient-mid/[0.02] blur-[80px] animate-float" style={{ animationDelay: '-1.5s' }} />
+    <div className="flex flex-col h-screen relative overflow-hidden">
+      {/* Lovable-style animated background */}
+      <div className="lovable-bg">
+        <div className="gradient-orb gradient-orb-1" />
+        <div className="gradient-orb gradient-orb-2" />
+        <div className="gradient-orb gradient-orb-3" />
       </div>
+      <div className="vignette noise-overlay" />
 
       <ChatHeader onClear={clearChat} hasMessages={messages.length > 0} />
       
