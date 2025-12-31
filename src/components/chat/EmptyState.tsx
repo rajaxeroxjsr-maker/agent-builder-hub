@@ -1,4 +1,5 @@
-import { Sparkles, MessageSquare, Lightbulb, Code } from "lucide-react";
+import { MessageSquare, Lightbulb, Code } from "lucide-react";
+import lumoraLogo from "@/assets/lumora-logo.png";
 
 interface SuggestionCardProps {
   icon: React.ReactNode;
@@ -50,8 +51,8 @@ export function EmptyState({ onSuggestionClick }: EmptyStateProps) {
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
-      <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 animate-pulse-glow">
-        <Sparkles className="w-8 h-8 text-primary" />
+      <div className="w-20 h-20 rounded-2xl overflow-hidden flex items-center justify-center mb-6 animate-pulse-glow">
+        <img src={lumoraLogo} alt="lumora.ai" className="w-20 h-20 object-contain" />
       </div>
       
       <h2 className="text-2xl font-semibold text-foreground mb-2 tracking-tight">
