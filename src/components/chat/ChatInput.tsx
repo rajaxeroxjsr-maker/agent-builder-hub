@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowUp, Sparkles } from "lucide-react";
+import { ArrowUp, Paperclip, Mic } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ChatInputProps {
@@ -18,7 +18,6 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
     if (input.trim() && !isLoading) {
       onSend(input);
       setInput("");
-      // Reset textarea height
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto";
       }
@@ -32,7 +31,6 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
     }
   };
 
-  // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
@@ -41,23 +39,25 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
   }, [input]);
 
   return (
-    <div className="p-4 md:p-6 bg-gradient-to-t from-background via-background to-transparent relative z-10">
+    <div className="sticky bottom-0 bg-gradient-to-t from-background via-background/95 to-transparent pt-6 pb-4 px-4">
       <div className="max-w-3xl mx-auto">
-        <div 
+        <div
           className={cn(
-            "relative flex items-end gap-3 bg-card/60 backdrop-blur-xl border rounded-2xl p-2.5 md:p-3 transition-all duration-500 input-focus-ring",
-            isFocused 
-              ? "border-primary/40 shadow-glow" 
-              : "border-border/50 shadow-soft hover:border-border"
+            "relative flex items-end gap-2 bg-secondary/50 border rounded-2xl transition-all duration-300",
+            isFocused
+              ? "border-primary/30 shadow-lg shadow-primary/5"
+              : "border-border hover:border-border/80"
           )}
         >
-          {/* Animated gradient border on focus */}
-          <div 
-            className={cn(
-              "absolute inset-0 rounded-2xl bg-gradient-primary opacity-0 transition-opacity duration-500 -z-10 blur-xl",
-              isFocused && "opacity-10"
-            )}
-          />
+          {/* Attachment button */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-10 w-10 shrink-0 ml-1 mb-1 text-muted-foreground hover:text-foreground"
+          >
+            <Paperclip className="h-5 w-5" />
+          </Button>
 
           <Textarea
             ref={textareaRef}
@@ -66,37 +66,44 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
             onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            placeholder="Ask Lumora anything..."
+            placeholder="Message Lumora..."
             disabled={isLoading}
             className={cn(
-              "flex-1 min-h-[48px] max-h-[200px] resize-none border-0 bg-transparent",
+              "flex-1 min-h-[52px] max-h-[200px] resize-none border-0 bg-transparent",
               "focus-visible:ring-0 focus-visible:ring-offset-0",
-              "placeholder:text-muted-foreground/50 text-[15px] py-3 px-3",
-              "tracking-[-0.01em] font-normal"
+              "placeholder:text-muted-foreground/60 text-[15px] py-3.5 px-0",
+              "leading-relaxed"
             )}
             rows={1}
           />
-          
-          <Button
-            onClick={handleSubmit}
-            disabled={!input.trim() || isLoading}
-            size="icon"
-            className={cn(
-              "h-11 w-11 rounded-xl shrink-0 transition-all duration-300 button-press",
-              input.trim() && !isLoading
-                ? "bg-gradient-primary hover:opacity-90 shadow-glow"
-                : "bg-secondary text-muted-foreground hover:bg-secondary/80"
-            )}
-          >
-            {isLoading ? (
-              <Sparkles className="h-5 w-5 animate-pulse" />
-            ) : (
+
+          <div className="flex items-center gap-1 mr-1 mb-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 text-muted-foreground hover:text-foreground"
+            >
+              <Mic className="h-5 w-5" />
+            </Button>
+
+            <Button
+              onClick={handleSubmit}
+              disabled={!input.trim() || isLoading}
+              size="icon"
+              className={cn(
+                "h-9 w-9 rounded-lg shrink-0 transition-all duration-200",
+                input.trim() && !isLoading
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                  : "bg-muted text-muted-foreground"
+              )}
+            >
               <ArrowUp className="h-5 w-5" />
-            )}
-          </Button>
+            </Button>
+          </div>
         </div>
-        
-        <p className="text-xs text-muted-foreground/60 text-center mt-4 tracking-wide">
+
+        <p className="text-xs text-muted-foreground/50 text-center mt-3">
           Lumora can make mistakes. Consider checking important information.
         </p>
       </div>

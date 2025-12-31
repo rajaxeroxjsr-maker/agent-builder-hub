@@ -1,7 +1,9 @@
 import { Message } from "@/types/chat";
 import { cn } from "@/lib/utils";
-import { Bot, User } from "lucide-react";
-import { CSSProperties } from "react";
+import { Bot, User, Copy, Check } from "lucide-react";
+import { CSSProperties, useState } from "react";
+import { Button } from "@/components/ui/button";
+import lumoraLogo from "@/assets/lumora-logo.png";
 
 interface ChatMessageProps {
   message: Message;
@@ -10,39 +12,85 @@ interface ChatMessageProps {
 
 export function ChatMessage({ message, style }: ChatMessageProps) {
   const isUser = message.role === "user";
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(message.content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div
       className={cn(
-        "flex gap-3 md:gap-4 chat-message-enter px-4 md:px-6 py-4 md:py-5",
-        isUser ? "justify-end" : "justify-start"
+        "group py-6 chat-message-enter",
+        isUser ? "bg-transparent" : "bg-secondary/30"
       )}
       style={style}
     >
-      {!isUser && (
-        <div className="flex-shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow transition-all duration-300 hover:scale-105">
-          <Bot className="w-5 h-5 md:w-5 md:h-5 text-primary-foreground" />
-        </div>
-      )}
-      
-      <div
-        className={cn(
-          "max-w-[85%] md:max-w-[75%] rounded-2xl px-4 py-3 md:px-5 md:py-3.5 transition-all duration-300",
-          isUser
-            ? "bg-gradient-primary text-primary-foreground rounded-br-md shadow-glow hover:shadow-glow-lg"
-            : "bg-card/80 backdrop-blur-sm border border-border/50 text-card-foreground rounded-bl-md hover:border-primary/20 hover:bg-card"
-        )}
-      >
-        <p className="text-sm md:text-[15px] leading-relaxed whitespace-pre-wrap break-words font-normal tracking-[-0.01em]">
-          {message.content}
-        </p>
-      </div>
+      <div className="max-w-3xl mx-auto px-4 md:px-6">
+        <div className="flex gap-4 md:gap-5">
+          {/* Avatar */}
+          <div
+            className={cn(
+              "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center",
+              isUser
+                ? "bg-primary text-primary-foreground"
+                : "bg-gradient-primary p-0.5"
+            )}
+          >
+            {isUser ? (
+              <User className="w-4 h-4" />
+            ) : (
+              <img
+                src={lumoraLogo}
+                alt="Lumora"
+                className="w-full h-full rounded-full object-cover"
+              />
+            )}
+          </div>
 
-      {isUser && (
-        <div className="flex-shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-xl bg-secondary flex items-center justify-center border border-border/50 transition-all duration-300 hover:scale-105 hover:border-primary/30">
-          <User className="w-4 h-4 md:w-5 md:h-5 text-foreground" />
+          {/* Content */}
+          <div className="flex-1 min-w-0 space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-sm text-foreground">
+                {isUser ? "You" : "Lumora"}
+              </span>
+            </div>
+            <div
+              className={cn(
+                "prose prose-sm max-w-none",
+                "prose-p:leading-relaxed prose-p:my-2",
+                "prose-pre:bg-secondary prose-pre:border prose-pre:border-border",
+                "prose-code:text-primary prose-code:bg-secondary prose-code:px-1 prose-code:py-0.5 prose-code:rounded",
+                "text-foreground/90"
+              )}
+            >
+              <p className="whitespace-pre-wrap break-words leading-7">
+                {message.content}
+              </p>
+            </div>
+
+            {/* Actions */}
+            {!isUser && message.content && (
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pt-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                  onClick={handleCopy}
+                >
+                  {copied ? (
+                    <Check className="h-3.5 w-3.5 text-green-500" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5" />
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
