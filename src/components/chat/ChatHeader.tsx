@@ -14,8 +14,8 @@ export function ChatHeader({ onClear, hasMessages }: ChatHeaderProps) {
           <Sparkles className="w-5 h-5 text-primary" />
         </div>
         <div>
-          <h1 className="text-lg font-semibold text-foreground">AI Assistant</h1>
-          <p className="text-xs text-muted-foreground">Powered by AI</p>
+          <h1 className="text-lg font-semibold text-foreground">lumora<span className="text-primary">.ai</span></h1>
+          <p className="text-xs text-muted-foreground">Your intelligent companion</p>
         </div>
       </div>
       
