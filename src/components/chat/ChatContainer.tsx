@@ -118,12 +118,12 @@ export function ChatContainer() {
           {messages.length === 0 ? (
             <EmptyState onSuggestionClick={handleSendMessage} />
           ) : (
-            <div className="pb-6">
+            <div className="py-4">
               {messages.map((message, index) => (
                 <ChatMessage
                   key={message.id}
                   message={message}
-                  style={{ animationDelay: `${index * 0.03}s` }}
+                  style={{ animationDelay: `${Math.min(index * 0.02, 0.2)}s` }}
                 />
               ))}
               {showTypingIndicator && <TypingIndicator />}
