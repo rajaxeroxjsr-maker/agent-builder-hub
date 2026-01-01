@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Sparkles, Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react";
+import { Sparkles, Mail, Lock, User, ArrowRight, Loader2, X } from "lucide-react";
 import lumoraLogo from "@/assets/lumora-logo.png";
 import { z } from "zod";
 
@@ -112,6 +112,14 @@ export default function Auth() {
       </div>
       
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4">
+        {/* Close button */}
+        <button
+          onClick={() => navigate("/")}
+          className="absolute top-4 right-4 p-2 rounded-full hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+          aria-label="Back to chat"
+        >
+          <X className="h-5 w-5" />
+        </button>
         {/* Logo */}
         <div className="mb-8 flex flex-col items-center gap-4 animate-fade-in-up">
           <div className="relative">
