@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useChat } from "@/hooks/useChat";
 import { useConversations } from "@/hooks/useConversations";
+import { useAuth } from "@/hooks/useAuth";
 import { ChatHeader } from "./ChatHeader";
 import { ChatMessage } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
@@ -8,10 +9,13 @@ import { TypingIndicator } from "./TypingIndicator";
 import { EmptyState } from "./EmptyState";
 import { Sidebar } from "./Sidebar";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 export function ChatContainer() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
 
   const {
     conversations,
@@ -68,6 +72,17 @@ export function ChatContainer() {
     createConversation();
   };
 
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const showTypingIndicator =
     isLoading && messages[messages.length - 1]?.role === "user";
 
@@ -82,6 +97,8 @@ export function ChatContainer() {
         onDeleteConversation={deleteConversation}
         isCollapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        user={user}
+        onSignOut={handleSignOut}
       />
 
       {/* Main Chat Area */}

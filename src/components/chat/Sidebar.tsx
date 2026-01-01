@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -9,10 +10,14 @@ import {
   PanelLeft,
   Settings,
   Sparkles,
+  LogOut,
+  LogIn,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Conversation } from "@/types/chat";
 import lumoraLogo from "@/assets/lumora-logo.png";
+import { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface SidebarProps {
   conversations: Conversation[];
@@ -22,6 +27,8 @@ interface SidebarProps {
   onDeleteConversation: (id: string) => void;
   isCollapsed: boolean;
   onToggleCollapse: () => void;
+  user: SupabaseUser | null;
+  onSignOut: () => void;
 }
 
 export function Sidebar({
@@ -32,8 +39,11 @@ export function Sidebar({
   onDeleteConversation,
   isCollapsed,
   onToggleCollapse,
+  user,
+  onSignOut,
 }: SidebarProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   // Group conversations by date
   const today = new Date();
@@ -184,18 +194,48 @@ export function Sidebar({
         )}
       </ScrollArea>
 
-      {/* Footer */}
-      <div className="p-3 border-t border-sidebar-border">
-        <Button
-          variant="ghost"
-          className={cn(
-            "w-full gap-2 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent",
-            isCollapsed ? "px-0 justify-center" : "justify-start"
-          )}
-        >
-          <Settings className="h-4 w-4" />
-          {!isCollapsed && <span>Settings</span>}
-        </Button>
+      {/* Footer - User section */}
+      <div className="p-3 border-t border-sidebar-border space-y-2">
+        {user ? (
+          <>
+            <div className={cn(
+              "flex items-center gap-2 px-2 py-1.5 rounded-lg bg-sidebar-accent/50",
+              isCollapsed && "justify-center px-0"
+            )}>
+              <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                <User className="h-3.5 w-3.5 text-primary" />
+              </div>
+              {!isCollapsed && (
+                <span className="text-sm text-sidebar-foreground truncate">
+                  {user.user_metadata?.display_name || user.email?.split('@')[0]}
+                </span>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              onClick={onSignOut}
+              className={cn(
+                "w-full gap-2 text-sidebar-foreground/70 hover:text-destructive hover:bg-destructive/10",
+                isCollapsed ? "px-0 justify-center" : "justify-start"
+              )}
+            >
+              <LogOut className="h-4 w-4" />
+              {!isCollapsed && <span>Sign out</span>}
+            </Button>
+          </>
+        ) : (
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/auth")}
+            className={cn(
+              "w-full gap-2 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent",
+              isCollapsed ? "px-0 justify-center" : "justify-start"
+            )}
+          >
+            <LogIn className="h-4 w-4" />
+            {!isCollapsed && <span>Sign in</span>}
+          </Button>
+        )}
       </div>
     </div>
   );
