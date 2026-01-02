@@ -1,18 +1,26 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowUp, Paperclip, Mic, X } from "lucide-react";
+import { ArrowUp, Paperclip, X, ImageIcon, FileText, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ChatInputProps {
   onSend: (message: string, files?: File[]) => void;
   isLoading: boolean;
+  model?: string;
 }
 
-export function ChatInput({ onSend, isLoading }: ChatInputProps) {
+export function ChatInput({ onSend, isLoading, model = "GPT-5" }: ChatInputProps) {
   const [input, setInput] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const [dragOver, setDragOver] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -36,7 +44,8 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    setAttachedFiles(prev => [...prev, ...files]);
+    const imageFiles = files.filter(f => f.type.startsWith('image/'));
+    setAttachedFiles(prev => [...prev, ...imageFiles]);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -46,6 +55,24 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
     setAttachedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const files = Array.from(e.dataTransfer.files);
+    const imageFiles = files.filter(f => f.type.startsWith('image/'));
+    setAttachedFiles(prev => [...prev, ...imageFiles]);
+  };
+
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
@@ -53,56 +80,58 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
     }
   }, [input]);
 
+  const modelName = model.split('/').pop()?.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) || "GPT-5";
+
   return (
-    <div className="sticky bottom-0 bg-gradient-to-t from-background via-background/95 to-transparent pt-6 pb-4 px-4">
+    <div className="sticky bottom-0 bg-gradient-to-t from-background via-background to-transparent pt-6 pb-4 px-4">
       <div className="max-w-3xl mx-auto">
         <div
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
           className={cn(
-            "relative flex flex-col bg-secondary/50 border rounded-2xl transition-all duration-300",
-            isFocused
-              ? "border-primary/30 shadow-lg shadow-primary/5"
-              : "border-border hover:border-border/80"
+            "relative flex flex-col bg-secondary/80 rounded-3xl transition-all duration-200",
+            isFocused ? "ring-1 ring-primary/30" : "",
+            dragOver && "ring-2 ring-primary bg-primary/5"
           )}
         >
-          {/* Attached files preview */}
+          {/* Attached files preview - ChatGPT style pills */}
           {attachedFiles.length > 0 && (
-            <div className="flex flex-wrap gap-2 p-3 pb-0">
+            <div className="flex flex-wrap gap-2 px-4 pt-3">
               {attachedFiles.map((file, index) => (
                 <div
                   key={index}
-                  className="relative group/file"
+                  className="relative group/file flex items-center gap-2 bg-background/80 rounded-2xl border border-border/50 overflow-hidden"
                 >
-                  {file.type.startsWith('image/') ? (
-                    <div className="relative">
+                  {file.type.startsWith('image/') && (
+                    <>
                       <img
                         src={URL.createObjectURL(file)}
                         alt={file.name}
-                        className="h-16 w-16 object-cover rounded-lg border border-border/50"
+                        className="h-14 w-14 object-cover"
                       />
+                      <div className="pr-8 py-2">
+                        <p className="text-xs font-medium text-foreground truncate max-w-[120px]">
+                          {file.name}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {(file.size / 1024).toFixed(0)} KB
+                        </p>
+                      </div>
                       <button
                         onClick={() => removeFile(index)}
-                        className="absolute -top-1.5 -right-1.5 bg-background border border-border rounded-full p-0.5 opacity-0 group-hover/file:opacity-100 transition-opacity"
+                        className="absolute top-1 right-1 bg-background/90 hover:bg-destructive hover:text-destructive-foreground rounded-full p-1 transition-colors"
                       >
-                        <X className="h-3 w-3 text-muted-foreground" />
+                        <X className="h-3 w-3" />
                       </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-1.5 text-sm">
-                      <span className="truncate max-w-[150px]">{file.name}</span>
-                      <button
-                        onClick={() => removeFile(index)}
-                        className="text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
+                    </>
                   )}
                 </div>
               ))}
             </div>
           )}
 
-          <div className="flex items-end gap-2">
+          <div className="flex items-end gap-1 p-2">
             {/* Hidden file input */}
             <input
               ref={fileInputRef}
@@ -110,19 +139,28 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
               multiple
               onChange={handleFileSelect}
               className="hidden"
-              accept="image/*,.pdf,.doc,.docx,.txt"
+              accept="image/*"
             />
 
             {/* Attachment button */}
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => fileInputRef.current?.click()}
-              className="h-10 w-10 shrink-0 ml-1 mb-1 text-muted-foreground hover:text-foreground"
-            >
-              <Paperclip className="h-5 w-5" />
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="h-9 w-9 shrink-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  >
+                    <Paperclip className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p>Attach image</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
 
             <Textarea
               ref={textareaRef}
@@ -131,36 +169,27 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
               onKeyDown={handleKeyDown}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
-              placeholder="Message Lumora..."
+              placeholder={`Message ${modelName}...`}
               disabled={isLoading}
               className={cn(
-                "flex-1 min-h-[52px] max-h-[200px] resize-none border-0 bg-transparent",
+                "flex-1 min-h-[44px] max-h-[200px] resize-none border-0 bg-transparent",
                 "focus-visible:ring-0 focus-visible:ring-offset-0",
-                "placeholder:text-muted-foreground/60 text-[15px] py-3.5 px-0",
+                "placeholder:text-muted-foreground/60 text-[15px] py-3 px-2",
                 "leading-relaxed"
               )}
               rows={1}
             />
 
-            <div className="flex items-center gap-1 mr-1 mb-1">
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="h-10 w-10 text-muted-foreground hover:text-foreground"
-              >
-                <Mic className="h-5 w-5" />
-              </Button>
-
+            <div className="flex items-center gap-1">
               <Button
                 onClick={handleSubmit}
                 disabled={(!input.trim() && attachedFiles.length === 0) || isLoading}
                 size="icon"
                 className={cn(
-                  "h-9 w-9 rounded-lg shrink-0 transition-all duration-200",
+                  "h-9 w-9 rounded-full shrink-0 transition-all duration-200",
                   (input.trim() || attachedFiles.length > 0) && !isLoading
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                    : "bg-muted text-muted-foreground"
+                    ? "bg-foreground text-background hover:bg-foreground/90"
+                    : "bg-muted-foreground/30 text-muted-foreground cursor-not-allowed"
                 )}
               >
                 <ArrowUp className="h-5 w-5" />
@@ -170,7 +199,7 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
         </div>
 
         <p className="text-xs text-muted-foreground/50 text-center mt-3">
-          Lumora can make mistakes. Consider checking important information.
+          {modelName} can make mistakes. Consider checking important information.
         </p>
       </div>
     </div>
