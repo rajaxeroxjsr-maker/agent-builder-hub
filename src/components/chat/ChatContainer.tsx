@@ -2,20 +2,24 @@ import { useEffect, useRef, useState } from "react";
 import { useChat } from "@/hooks/useChat";
 import { useConversations } from "@/hooks/useConversations";
 import { useAuth } from "@/hooks/useAuth";
+import { useSettings } from "@/hooks/useSettings";
 import { ChatHeader } from "./ChatHeader";
 import { ChatMessage } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
 import { TypingIndicator } from "./TypingIndicator";
 import { EmptyState } from "./EmptyState";
 import { Sidebar } from "./Sidebar";
+import { SettingsDialog } from "./SettingsDialog";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
 export function ChatContainer() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const { model, updateModel } = useSettings();
 
   const {
     conversations,
@@ -29,6 +33,7 @@ export function ChatContainer() {
   } = useConversations();
 
   const { messages, isLoading, sendMessage, setMessagesFromConversation } = useChat({
+    model,
     onAddMessage: (message) => {
       if (activeConversationId) {
         addMessageToConversation(activeConversationId, message);
@@ -99,6 +104,7 @@ export function ChatContainer() {
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
         user={user}
         onSignOut={handleSignOut}
+        onOpenSettings={() => setSettingsOpen(true)}
       />
 
       {/* Main Chat Area */}
@@ -109,6 +115,8 @@ export function ChatContainer() {
         <ChatHeader
           title={activeConversation?.title}
           hasMessages={messages.length > 0}
+          selectedModel={model}
+          onModelChange={updateModel}
         />
 
         <div
@@ -131,8 +139,20 @@ export function ChatContainer() {
           )}
         </div>
 
-        <ChatInput onSend={handleSendMessage} isLoading={isLoading} />
+        <ChatInput 
+          onSend={handleSendMessage} 
+          isLoading={isLoading} 
+          model={model}
+        />
       </div>
+
+      {/* Settings Dialog */}
+      <SettingsDialog
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        selectedModel={model}
+        onModelChange={updateModel}
+      />
     </div>
   );
 }

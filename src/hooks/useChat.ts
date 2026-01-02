@@ -8,6 +8,7 @@ interface UseChatProps {
   onAddMessage?: (message: Message) => void;
   onUpdateMessage?: (messageId: string, content: string) => void;
   initialMessages?: Message[];
+  model?: string;
 }
 
 // Convert File to base64 data URL
@@ -20,7 +21,7 @@ async function fileToBase64(file: File): Promise<string> {
   });
 }
 
-export function useChat({ onAddMessage, onUpdateMessage, initialMessages = [] }: UseChatProps = {}) {
+export function useChat({ onAddMessage, onUpdateMessage, initialMessages = [], model = "openai/gpt-5" }: UseChatProps = {}) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -56,6 +57,7 @@ export function useChat({ onAddMessage, onUpdateMessage, initialMessages = [] }:
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify({
+          model,
           messages: [...messages, userMessage].map((m) => ({
             role: m.role,
             content: m.content,
@@ -136,7 +138,7 @@ export function useChat({ onAddMessage, onUpdateMessage, initialMessages = [] }:
     } finally {
       setIsLoading(false);
     }
-  }, [messages, isLoading, onAddMessage, onUpdateMessage]);
+  }, [messages, isLoading, onAddMessage, onUpdateMessage, model]);
 
   const clearChat = useCallback(() => {
     setMessages([]);

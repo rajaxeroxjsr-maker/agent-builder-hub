@@ -13,11 +13,19 @@ import {
   LogOut,
   LogIn,
   User,
+  MoreHorizontal,
+  Pencil,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Conversation } from "@/types/chat";
 import lumoraLogo from "@/assets/lumora-logo.png";
 import { User as SupabaseUser } from "@supabase/supabase-js";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface SidebarProps {
   conversations: Conversation[];
@@ -29,6 +37,7 @@ interface SidebarProps {
   onToggleCollapse: () => void;
   user: SupabaseUser | null;
   onSignOut: () => void;
+  onOpenSettings: () => void;
 }
 
 export function Sidebar({
@@ -41,6 +50,7 @@ export function Sidebar({
   onToggleCollapse,
   user,
   onSignOut,
+  onOpenSettings,
 }: SidebarProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -80,7 +90,7 @@ export function Sidebar({
         {items.map((conversation) => (
           <div
             key={conversation.id}
-            className="relative group"
+            className="relative group px-2"
             onMouseEnter={() => setHoveredId(conversation.id)}
             onMouseLeave={() => setHoveredId(null)}
           >
@@ -94,25 +104,45 @@ export function Sidebar({
               )}
               onClick={() => onSelectConversation(conversation.id)}
             >
-              <MessageSquare className="h-4 w-4 shrink-0 text-muted-foreground" />
-              {!isCollapsed && (
+              {!isCollapsed ? (
                 <span className="truncate text-sm font-normal">
                   {conversation.title}
                 </span>
+              ) : (
+                <MessageSquare className="h-4 w-4 shrink-0 text-muted-foreground" />
               )}
             </Button>
             {hoveredId === conversation.id && !isCollapsed && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDeleteConversation(conversation.id);
-                }}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 hover:bg-muted"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-40">
+                    <DropdownMenuItem>
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Rename
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteConversation(conversation.id);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             )}
           </div>
         ))}
@@ -129,18 +159,6 @@ export function Sidebar({
     >
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-sidebar-border">
-        {!isCollapsed && (
-          <div className="flex items-center gap-2">
-            <img
-              src={lumoraLogo}
-              alt="Lumora"
-              className="h-7 w-7 rounded-lg"
-            />
-            <span className="font-semibold text-sidebar-foreground tracking-tight">
-              Lumora
-            </span>
-          </div>
-        )}
         <Button
           variant="ghost"
           size="icon"
@@ -156,24 +174,47 @@ export function Sidebar({
             <PanelLeftClose className="h-4 w-4" />
           )}
         </Button>
+        {!isCollapsed && (
+          <Button
+            onClick={onNewChat}
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+        )}
       </div>
 
-      {/* New Chat Button */}
-      <div className="p-3">
-        <Button
-          onClick={onNewChat}
-          className={cn(
-            "w-full gap-2 bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 transition-all duration-200",
-            isCollapsed ? "px-0" : "justify-start"
-          )}
-        >
-          <Plus className="h-4 w-4" />
-          {!isCollapsed && <span>New chat</span>}
-        </Button>
-      </div>
+      {/* New Chat Button - Only when collapsed */}
+      {isCollapsed && (
+        <div className="p-2">
+          <Button
+            onClick={onNewChat}
+            variant="ghost"
+            size="icon"
+            className="w-full h-10 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
 
       {/* Conversations List */}
-      <ScrollArea className="flex-1 px-2">
+      <ScrollArea className="flex-1 px-1">
+        {!isCollapsed && (
+          <div className="px-2 py-3">
+            <Button
+              onClick={onNewChat}
+              variant="ghost"
+              className="w-full justify-start gap-3 h-10 px-3 rounded-lg text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+            >
+              <Plus className="h-4 w-4" />
+              <span className="text-sm">New chat</span>
+            </Button>
+          </div>
+        )}
+        
         {renderGroup("Today", groupedConversations.today)}
         {renderGroup("Yesterday", groupedConversations.yesterday)}
         {renderGroup("Previous 7 Days", groupedConversations.lastWeek)}
@@ -195,41 +236,54 @@ export function Sidebar({
       </ScrollArea>
 
       {/* Footer - User section */}
-      <div className="p-3 border-t border-sidebar-border space-y-2">
+      <div className="p-2 border-t border-sidebar-border">
         {user ? (
-          <>
-            <div className={cn(
-              "flex items-center gap-2 px-2 py-1.5 rounded-lg bg-sidebar-accent/50",
-              isCollapsed && "justify-center px-0"
-            )}>
-              <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                <User className="h-3.5 w-3.5 text-primary" />
-              </div>
-              {!isCollapsed && (
-                <span className="text-sm text-sidebar-foreground truncate">
-                  {user.user_metadata?.display_name || user.email?.split('@')[0]}
-                </span>
-              )}
-            </div>
-            <Button
-              variant="ghost"
-              onClick={onSignOut}
-              className={cn(
-                "w-full gap-2 text-sidebar-foreground/70 hover:text-destructive hover:bg-destructive/10",
-                isCollapsed ? "px-0 justify-center" : "justify-start"
-              )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className={cn(
+                  "w-full gap-3 h-12 px-3 rounded-lg justify-start hover:bg-sidebar-accent",
+                  isCollapsed && "justify-center px-0"
+                )}
+              >
+                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary/60 to-primary flex items-center justify-center shrink-0">
+                  <span className="text-sm font-medium text-primary-foreground">
+                    {(user.user_metadata?.display_name || user.email || "U")[0].toUpperCase()}
+                  </span>
+                </div>
+                {!isCollapsed && (
+                  <span className="text-sm text-sidebar-foreground truncate">
+                    {user.user_metadata?.display_name || user.email?.split('@')[0]}
+                  </span>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent 
+              align={isCollapsed ? "center" : "start"} 
+              side="top"
+              className="w-56 mb-2"
             >
-              <LogOut className="h-4 w-4" />
-              {!isCollapsed && <span>Sign out</span>}
-            </Button>
-          </>
+              <DropdownMenuItem onClick={onOpenSettings}>
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={onSignOut}
+                className="text-destructive focus:text-destructive"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         ) : (
           <Button
             variant="ghost"
             onClick={() => navigate("/auth")}
             className={cn(
-              "w-full gap-2 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent",
-              isCollapsed ? "px-0 justify-center" : "justify-start"
+              "w-full gap-3 h-12 px-3 rounded-lg justify-start text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent",
+              isCollapsed && "justify-center px-0"
             )}
           >
             <LogIn className="h-4 w-4" />

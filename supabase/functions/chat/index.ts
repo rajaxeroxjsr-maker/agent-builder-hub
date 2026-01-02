@@ -12,9 +12,13 @@ serve(async (req) => {
   }
 
   try {
-    const { messages } = await req.json();
+    const { messages, model = "openai/gpt-5" } = await req.json();
     
-    console.log("Received chat request with", messages?.length || 0, "messages");
+    // Validate model selection
+    const allowedModels = ["openai/gpt-5", "openai/gpt-5-mini", "openai/gpt-5-nano"];
+    const selectedModel = allowedModels.includes(model) ? model : "openai/gpt-5";
+    
+    console.log("Received chat request with", messages?.length || 0, "messages, model:", selectedModel);
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -51,7 +55,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "openai/gpt-5",
+        model: selectedModel,
         messages: [
           { 
             role: "system", 
