@@ -70,15 +70,33 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
               {attachedFiles.map((file, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-2 bg-muted rounded-lg px-3 py-1.5 text-sm"
+                  className="relative group/file"
                 >
-                  <span className="truncate max-w-[150px]">{file.name}</span>
-                  <button
-                    onClick={() => removeFile(index)}
-                    className="text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
+                  {file.type.startsWith('image/') ? (
+                    <div className="relative">
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={file.name}
+                        className="h-16 w-16 object-cover rounded-lg border border-border/50"
+                      />
+                      <button
+                        onClick={() => removeFile(index)}
+                        className="absolute -top-1.5 -right-1.5 bg-background border border-border rounded-full p-0.5 opacity-0 group-hover/file:opacity-100 transition-opacity"
+                      >
+                        <X className="h-3 w-3 text-muted-foreground" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-1.5 text-sm">
+                      <span className="truncate max-w-[150px]">{file.name}</span>
+                      <button
+                        onClick={() => removeFile(index)}
+                        className="text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

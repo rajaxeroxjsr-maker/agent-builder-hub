@@ -54,6 +54,22 @@ export function ChatMessage({ message, style }: ChatMessageProps) {
                 {isUser ? "You" : "Lumora"}
               </span>
             </div>
+
+            {/* Image attachments */}
+            {message.images && message.images.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {message.images.map((image, index) => (
+                  <div key={index} className="relative group/image">
+                    <img
+                      src={image.url}
+                      alt={image.name}
+                      className="max-w-[200px] max-h-[200px] rounded-lg object-cover border border-border/50"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="text-foreground/90 text-[15px] leading-7">
               <p className="whitespace-pre-wrap break-words">
                 {message.content}

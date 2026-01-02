@@ -22,6 +22,28 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
+    // Transform messages to handle images for GPT-5 vision
+    const transformedMessages = messages.map((msg: any) => {
+      if (msg.images && msg.images.length > 0) {
+        // Build content array with text and images
+        const content: any[] = [];
+        
+        if (msg.content) {
+          content.push({ type: "text", text: msg.content });
+        }
+        
+        for (const image of msg.images) {
+          content.push({
+            type: "image_url",
+            image_url: { url: image.url }
+          });
+        }
+        
+        return { role: msg.role, content };
+      }
+      return { role: msg.role, content: msg.content };
+    });
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -40,9 +62,10 @@ You are polite, calm, and helpful.
 You avoid complicated words unless necessary.
 You help users step by step.
 You sound human, not robotic.
+When users share images, analyze them thoroughly and provide helpful insights.
 Format your responses using markdown when appropriate for better readability.` 
           },
-          ...messages,
+          ...transformedMessages,
         ],
         stream: true,
       }),
