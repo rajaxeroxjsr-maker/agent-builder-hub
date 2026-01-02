@@ -1,8 +1,14 @@
+export interface ImageAttachment {
+  url: string;
+  name: string;
+}
+
 export interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  images?: ImageAttachment[];
 }
 
 export interface Conversation {

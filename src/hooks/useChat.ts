@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Message } from "@/types/chat";
+import { Message, ImageAttachment } from "@/types/chat";
 import { toast } from "@/hooks/use-toast";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
@@ -10,18 +10,38 @@ interface UseChatProps {
   initialMessages?: Message[];
 }
 
+// Convert File to base64 data URL
+async function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 export function useChat({ onAddMessage, onUpdateMessage, initialMessages = [] }: UseChatProps = {}) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
 
-  const sendMessage = useCallback(async (content: string) => {
-    if (!content.trim() || isLoading) return;
+  const sendMessage = useCallback(async (content: string, files?: File[]) => {
+    if ((!content.trim() && (!files || files.length === 0)) || isLoading) return;
+
+    // Process image files to base64
+    const imageFiles = files?.filter(f => f.type.startsWith('image/')) || [];
+    const images: ImageAttachment[] = await Promise.all(
+      imageFiles.map(async (file) => ({
+        url: await fileToBase64(file),
+        name: file.name,
+      }))
+    );
 
     const userMessage: Message = {
       id: crypto.randomUUID(),
       role: "user",
       content: content.trim(),
       timestamp: new Date(),
+      images: images.length > 0 ? images : undefined,
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -39,6 +59,7 @@ export function useChat({ onAddMessage, onUpdateMessage, initialMessages = [] }:
           messages: [...messages, userMessage].map((m) => ({
             role: m.role,
             content: m.content,
+            images: m.images,
           })),
         }),
       });

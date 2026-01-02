@@ -60,12 +60,12 @@ export function ChatContainer() {
     }
   }, [messages, isLoading]);
 
-  const handleSendMessage = async (content: string) => {
+  const handleSendMessage = async (content: string, files?: File[]) => {
     let convId = activeConversationId;
     if (!convId) {
       convId = createConversation();
     }
-    await sendMessage(content);
+    await sendMessage(content, files);
   };
 
   const handleNewChat = () => {
