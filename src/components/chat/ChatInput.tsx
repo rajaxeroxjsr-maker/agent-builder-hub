@@ -83,14 +83,14 @@ export function ChatInput({ onSend, isLoading, model = "GPT-5" }: ChatInputProps
   const modelName = model.split('/').pop()?.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) || "GPT-5";
 
   return (
-    <div className="sticky bottom-0 bg-gradient-to-t from-background via-background to-transparent pt-6 pb-4 px-4">
+    <div className="sticky bottom-0 bg-gradient-to-t from-background via-background to-transparent pt-4 pb-3 px-3 md:pt-6 md:pb-4 md:px-4">
       <div className="max-w-3xl mx-auto">
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           className={cn(
-            "relative flex flex-col bg-secondary/80 rounded-3xl transition-all duration-200",
+            "relative flex flex-col bg-secondary/80 rounded-2xl md:rounded-3xl transition-all duration-200",
             isFocused ? "ring-1 ring-primary/30" : "",
             dragOver && "ring-2 ring-primary bg-primary/5"
           )}
@@ -198,8 +198,8 @@ export function ChatInput({ onSend, isLoading, model = "GPT-5" }: ChatInputProps
           </div>
         </div>
 
-        <p className="text-xs text-muted-foreground/50 text-center mt-3">
-          {modelName} can make mistakes. Consider checking important information.
+        <p className="text-[10px] md:text-xs text-muted-foreground/50 text-center mt-2 md:mt-3">
+          {modelName} can make mistakes. Check important info.
         </p>
       </div>
     </div>
