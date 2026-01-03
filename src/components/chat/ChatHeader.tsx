@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Check, Zap, Brain, Sparkles } from "lucide-react";
+import { ChevronDown, Check, Zap, Brain, Sparkles, Menu } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +13,8 @@ interface ChatHeaderProps {
   hasMessages: boolean;
   selectedModel: string;
   onModelChange: (model: string) => void;
+  isMobile: boolean;
+  onOpenSidebar: () => void;
 }
 
 const models = [
@@ -42,18 +43,32 @@ export function ChatHeader({
   hasMessages,
   selectedModel,
   onModelChange,
+  isMobile,
+  onOpenSidebar,
 }: ChatHeaderProps) {
   const currentModel = models.find(m => m.id === selectedModel) || models[0];
   const CurrentIcon = currentModel.icon;
 
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between px-4 py-3 bg-background/80 backdrop-blur-md border-b border-border/50">
+    <header className="sticky top-0 z-20 flex items-center justify-between px-3 py-2.5 md:px-4 md:py-3 bg-background/80 backdrop-blur-md border-b border-border/50">
       <div className="flex items-center gap-2">
+        {/* Menu button for mobile */}
+        {isMobile && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 text-muted-foreground hover:text-foreground"
+            onClick={onOpenSidebar}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+        )}
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="gap-2 font-semibold text-foreground hover:bg-secondary h-9 px-3"
+              className="gap-1.5 md:gap-2 font-semibold text-foreground hover:bg-secondary h-9 px-2 md:px-3"
             >
               <CurrentIcon className="h-4 w-4 text-primary" />
               <span className="text-sm">{currentModel.name}</span>

@@ -33,8 +33,8 @@ interface SidebarProps {
   onSelectConversation: (id: string) => void;
   onNewChat: () => void;
   onDeleteConversation: (id: string) => void;
-  isCollapsed: boolean;
-  onToggleCollapse: () => void;
+  isMobile: boolean;
+  onCloseMobile: () => void;
   user: SupabaseUser | null;
   onSignOut: () => void;
   onOpenSettings: () => void;
@@ -46,8 +46,8 @@ export function Sidebar({
   onSelectConversation,
   onNewChat,
   onDeleteConversation,
-  isCollapsed,
-  onToggleCollapse,
+  isMobile,
+  onCloseMobile,
   user,
   onSignOut,
   onOpenSettings,
@@ -82,11 +82,9 @@ export function Sidebar({
     if (items.length === 0) return null;
     return (
       <div className="mb-4">
-        {!isCollapsed && (
-          <p className="text-xs font-medium text-muted-foreground/70 px-3 py-2 uppercase tracking-wider">
-            {title}
-          </p>
-        )}
+        <p className="text-xs font-medium text-muted-foreground/70 px-3 py-2 uppercase tracking-wider">
+          {title}
+        </p>
         {items.map((conversation) => (
           <div
             key={conversation.id}
@@ -104,15 +102,11 @@ export function Sidebar({
               )}
               onClick={() => onSelectConversation(conversation.id)}
             >
-              {!isCollapsed ? (
-                <span className="truncate text-sm font-normal">
-                  {conversation.title}
-                </span>
-              ) : (
-                <MessageSquare className="h-4 w-4 shrink-0 text-muted-foreground" />
-              )}
+              <span className="truncate text-sm font-normal">
+                {conversation.title}
+              </span>
             </Button>
-            {hoveredId === conversation.id && !isCollapsed && (
+            {hoveredId === conversation.id && (
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -153,74 +147,53 @@ export function Sidebar({
   return (
     <div
       className={cn(
-        "flex flex-col h-full bg-sidebar border-r border-sidebar-border transition-all duration-300 relative",
-        isCollapsed ? "w-[60px]" : "w-[260px]"
+        "flex flex-col h-full bg-sidebar border-r border-sidebar-border",
+        isMobile ? "w-[280px]" : "w-[260px]"
       )}
     >
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-sidebar-border">
+        {isMobile ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 shrink-0 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+            onClick={onCloseMobile}
+          >
+            <PanelLeftClose className="h-4 w-4" />
+          </Button>
+        ) : (
+          <div className="h-8 w-8" /> 
+        )}
         <Button
+          onClick={onNewChat}
           variant="ghost"
           size="icon"
-          className={cn(
-            "h-8 w-8 shrink-0 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent",
-            isCollapsed && "mx-auto"
-          )}
-          onClick={onToggleCollapse}
+          className="h-8 w-8 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
         >
-          {isCollapsed ? (
-            <PanelLeft className="h-4 w-4" />
-          ) : (
-            <PanelLeftClose className="h-4 w-4" />
-          )}
+          <Pencil className="h-4 w-4" />
         </Button>
-        {!isCollapsed && (
-          <Button
-            onClick={onNewChat}
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
-        )}
       </div>
-
-      {/* New Chat Button - Only when collapsed */}
-      {isCollapsed && (
-        <div className="p-2">
-          <Button
-            onClick={onNewChat}
-            variant="ghost"
-            size="icon"
-            className="w-full h-10 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
 
       {/* Conversations List */}
       <ScrollArea className="flex-1 px-1">
-        {!isCollapsed && (
-          <div className="px-2 py-3">
-            <Button
-              onClick={onNewChat}
-              variant="ghost"
-              className="w-full justify-start gap-3 h-10 px-3 rounded-lg text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
-            >
-              <Plus className="h-4 w-4" />
-              <span className="text-sm">New chat</span>
-            </Button>
-          </div>
-        )}
+        <div className="px-2 py-3">
+          <Button
+            onClick={onNewChat}
+            variant="ghost"
+            className="w-full justify-start gap-3 h-10 px-3 rounded-lg text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+          >
+            <Plus className="h-4 w-4" />
+            <span className="text-sm">New chat</span>
+          </Button>
+        </div>
         
         {renderGroup("Today", groupedConversations.today)}
         {renderGroup("Yesterday", groupedConversations.yesterday)}
         {renderGroup("Previous 7 Days", groupedConversations.lastWeek)}
         {renderGroup("Older", groupedConversations.older)}
 
-        {conversations.length === 0 && !isCollapsed && (
+        {conversations.length === 0 && (
           <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
             <div className="w-12 h-12 rounded-xl bg-sidebar-accent flex items-center justify-center mb-3">
               <Sparkles className="h-5 w-5 text-sidebar-foreground/50" />
@@ -242,25 +215,20 @@ export function Sidebar({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className={cn(
-                  "w-full gap-3 h-12 px-3 rounded-lg justify-start hover:bg-sidebar-accent",
-                  isCollapsed && "justify-center px-0"
-                )}
+                className="w-full gap-3 h-12 px-3 rounded-lg justify-start hover:bg-sidebar-accent"
               >
                 <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary/60 to-primary flex items-center justify-center shrink-0">
                   <span className="text-sm font-medium text-primary-foreground">
                     {(user.user_metadata?.display_name || user.email || "U")[0].toUpperCase()}
                   </span>
                 </div>
-                {!isCollapsed && (
-                  <span className="text-sm text-sidebar-foreground truncate">
-                    {user.user_metadata?.display_name || user.email?.split('@')[0]}
-                  </span>
-                )}
+                <span className="text-sm text-sidebar-foreground truncate">
+                  {user.user_metadata?.display_name || user.email?.split('@')[0]}
+                </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent 
-              align={isCollapsed ? "center" : "start"} 
+              align="start"
               side="top"
               className="w-56 mb-2"
             >
@@ -281,13 +249,10 @@ export function Sidebar({
           <Button
             variant="ghost"
             onClick={() => navigate("/auth")}
-            className={cn(
-              "w-full gap-3 h-12 px-3 rounded-lg justify-start text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent",
-              isCollapsed && "justify-center px-0"
-            )}
+            className="w-full gap-3 h-12 px-3 rounded-lg justify-start text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
           >
             <LogIn className="h-4 w-4" />
-            {!isCollapsed && <span>Sign in</span>}
+            <span>Sign in</span>
           </Button>
         )}
       </div>

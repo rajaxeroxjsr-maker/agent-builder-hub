@@ -3,6 +3,7 @@ import { useChat } from "@/hooks/useChat";
 import { useConversations } from "@/hooks/useConversations";
 import { useAuth } from "@/hooks/useAuth";
 import { useSettings } from "@/hooks/useSettings";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { ChatHeader } from "./ChatHeader";
 import { ChatMessage } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
@@ -14,7 +15,8 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
 export function ChatContainer() {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const isMobile = useIsMobile();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { user, signOut } = useAuth();
@@ -65,6 +67,14 @@ export function ChatContainer() {
     }
   }, [messages, isLoading]);
 
+  // Close sidebar when selecting a conversation on mobile
+  const handleSelectConversation = (id: string) => {
+    setActiveConversationId(id);
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
+
   const handleSendMessage = async (content: string, files?: File[]) => {
     let convId = activeConversationId;
     if (!convId) {
@@ -75,6 +85,9 @@ export function ChatContainer() {
 
   const handleNewChat = () => {
     createConversation();
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
   };
 
   const handleSignOut = async () => {
@@ -93,19 +106,37 @@ export function ChatContainer() {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
+      {/* Mobile overlay */}
+      {isMobile && sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <Sidebar
-        conversations={conversations}
-        activeConversationId={activeConversationId}
-        onSelectConversation={setActiveConversationId}
-        onNewChat={handleNewChat}
-        onDeleteConversation={deleteConversation}
-        isCollapsed={sidebarCollapsed}
-        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
-        user={user}
-        onSignOut={handleSignOut}
-        onOpenSettings={() => setSettingsOpen(true)}
-      />
+      <div
+        className={cn(
+          "h-full z-50",
+          isMobile
+            ? "fixed left-0 top-0 transition-transform duration-300 ease-in-out"
+            : "relative",
+          isMobile && !sidebarOpen && "-translate-x-full"
+        )}
+      >
+        <Sidebar
+          conversations={conversations}
+          activeConversationId={activeConversationId}
+          onSelectConversation={handleSelectConversation}
+          onNewChat={handleNewChat}
+          onDeleteConversation={deleteConversation}
+          isMobile={isMobile}
+          onCloseMobile={() => setSidebarOpen(false)}
+          user={user}
+          onSignOut={handleSignOut}
+          onOpenSettings={() => setSettingsOpen(true)}
+        />
+      </div>
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-w-0 relative">
@@ -117,6 +148,8 @@ export function ChatContainer() {
           hasMessages={messages.length > 0}
           selectedModel={model}
           onModelChange={updateModel}
+          isMobile={isMobile}
+          onOpenSidebar={() => setSidebarOpen(true)}
         />
 
         <div
