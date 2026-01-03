@@ -4,21 +4,16 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Plus,
-  MessageSquare,
   Trash2,
   PanelLeftClose,
-  PanelLeft,
   Settings,
   Sparkles,
   LogOut,
   LogIn,
-  User,
-  MoreHorizontal,
   Pencil,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Conversation } from "@/types/chat";
-import lumoraLogo from "@/assets/lumora-logo.png";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import {
   DropdownMenu,
@@ -106,38 +101,20 @@ export function Sidebar({
                 {conversation.title}
               </span>
             </Button>
-            {hoveredId === conversation.id && (
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 hover:bg-muted"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-40">
-                    <DropdownMenuItem>
-                      <Pencil className="h-4 w-4 mr-2" />
-                      Rename
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="text-destructive focus:text-destructive"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeleteConversation(conversation.id);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "absolute right-3 top-1/2 -translate-y-1/2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive",
+                hoveredId === conversation.id && "opacity-100"
+              )}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteConversation(conversation.id);
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
         ))}
       </div>
