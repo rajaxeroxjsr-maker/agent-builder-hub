@@ -124,44 +124,44 @@ export function Sidebar({
   return (
     <div
       className={cn(
-        "flex flex-col h-full bg-sidebar border-r border-sidebar-border",
+        "flex flex-col h-full bg-card border-r border-border/30 shadow-sm",
         isMobile ? "w-[280px]" : "w-[260px]"
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b border-sidebar-border">
+      <div className="flex items-center justify-between p-4 border-b border-border/30">
         {isMobile ? (
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 shrink-0 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+            className="h-9 w-9 shrink-0 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-xl"
             onClick={onCloseMobile}
           >
             <PanelLeftClose className="h-4 w-4" />
           </Button>
         ) : (
-          <div className="h-8 w-8" /> 
+          <div className="h-9 w-9" /> 
         )}
         <Button
           onClick={onNewChat}
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+          className="h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-xl"
         >
           <Pencil className="h-4 w-4" />
         </Button>
       </div>
 
       {/* Conversations List */}
-      <ScrollArea className="flex-1 px-1">
-        <div className="px-2 py-3">
+      <ScrollArea className="flex-1 px-2">
+        <div className="py-3">
           <Button
             onClick={onNewChat}
             variant="ghost"
-            className="w-full justify-start gap-3 h-10 px-3 rounded-lg text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+            className="w-full justify-start gap-3 h-11 px-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary mb-2"
           >
             <Plus className="h-4 w-4" />
-            <span className="text-sm">New chat</span>
+            <span className="text-sm font-medium">New chat</span>
           </Button>
         </div>
         
@@ -172,13 +172,13 @@ export function Sidebar({
 
         {conversations.length === 0 && (
           <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
-            <div className="w-12 h-12 rounded-xl bg-sidebar-accent flex items-center justify-center mb-3">
-              <Sparkles className="h-5 w-5 text-sidebar-foreground/50" />
+            <div className="w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center mb-3">
+              <Sparkles className="h-5 w-5 text-muted-foreground" />
             </div>
-            <p className="text-sm text-sidebar-foreground/70">
+            <p className="text-sm text-foreground/70">
               No conversations yet
             </p>
-            <p className="text-xs text-sidebar-foreground/50 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Start a new chat to begin
             </p>
           </div>
@@ -186,20 +186,20 @@ export function Sidebar({
       </ScrollArea>
 
       {/* Footer - User section */}
-      <div className="p-2 border-t border-sidebar-border">
+      <div className="p-3 border-t border-border/30">
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="w-full gap-3 h-12 px-3 rounded-lg justify-start hover:bg-sidebar-accent"
+                className="w-full gap-3 h-12 px-3 rounded-xl justify-start hover:bg-secondary"
               >
-                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary/60 to-primary flex items-center justify-center shrink-0">
-                  <span className="text-sm font-medium text-primary-foreground">
+                <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shrink-0 shadow-sm">
+                  <span className="text-sm font-bold text-primary-foreground">
                     {(user.user_metadata?.display_name || user.email || "U")[0].toUpperCase()}
                   </span>
                 </div>
-                <span className="text-sm text-sidebar-foreground truncate">
+                <span className="text-sm font-medium text-foreground truncate">
                   {user.user_metadata?.display_name || user.email?.split('@')[0]}
                 </span>
               </Button>
@@ -207,15 +207,15 @@ export function Sidebar({
             <DropdownMenuContent 
               align="start"
               side="top"
-              className="w-56 mb-2"
+              className="w-56 mb-2 rounded-xl"
             >
-              <DropdownMenuItem onClick={onOpenSettings}>
+              <DropdownMenuItem onClick={onOpenSettings} className="rounded-lg">
                 <Settings className="h-4 w-4 mr-2" />
                 Settings
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={onSignOut}
-                className="text-destructive focus:text-destructive"
+                className="text-destructive focus:text-destructive rounded-lg"
               >
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign out
@@ -226,10 +226,10 @@ export function Sidebar({
           <Button
             variant="ghost"
             onClick={() => navigate("/auth")}
-            className="w-full gap-3 h-12 px-3 rounded-lg justify-start text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+            className="w-full gap-3 h-12 px-3 rounded-xl justify-start text-muted-foreground hover:text-foreground hover:bg-secondary"
           >
             <LogIn className="h-4 w-4" />
-            <span>Sign in</span>
+            <span className="font-medium">Sign in</span>
           </Button>
         )}
       </div>

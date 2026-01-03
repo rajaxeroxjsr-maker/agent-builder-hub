@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Check, Zap, Brain, Sparkles, Menu } from "lucide-react";
+import { ChevronDown, Check, Zap, Brain, Sparkles, Menu, Sun } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import lumoraLogo from "@/assets/lumora-logo.png";
 
 interface ChatHeaderProps {
   title?: string;
@@ -50,39 +51,50 @@ export function ChatHeader({
   const CurrentIcon = currentModel.icon;
 
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between px-3 py-2.5 md:px-4 md:py-3 bg-background/80 backdrop-blur-md border-b border-border/50">
-      <div className="flex items-center gap-2">
+    <header className="sticky top-0 z-20 flex items-center justify-between px-4 py-3 bg-card shadow-sm border-b border-border/30">
+      <div className="flex items-center gap-3">
         {/* Menu button for mobile */}
         {isMobile && (
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 text-muted-foreground hover:text-foreground"
+            className="h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-xl"
             onClick={onOpenSidebar}
           >
             <Menu className="h-5 w-5" />
           </Button>
         )}
 
+        {/* Logo and Title */}
+        <div className="flex items-center gap-2.5">
+          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-md">
+            <Sun className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <span className="font-bold text-lg text-foreground">Lumora</span>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        {/* Model Selector */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
-              variant="ghost"
-              className="gap-1.5 md:gap-2 font-semibold text-foreground hover:bg-secondary h-9 px-2 md:px-3"
+              variant="default"
+              className="gap-2 font-medium h-10 px-4 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
             >
-              <CurrentIcon className="h-4 w-4 text-primary" />
+              <CurrentIcon className="h-4 w-4" />
               <span className="text-sm">{currentModel.name}</span>
-              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+              <ChevronDown className="h-3.5 w-3.5 opacity-70" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56">
+          <DropdownMenuContent align="end" className="w-56 rounded-xl">
             {models.map((model) => {
               const Icon = model.icon;
               return (
                 <DropdownMenuItem
                   key={model.id}
                   onClick={() => onModelChange(model.id)}
-                  className="flex items-center gap-3 py-2.5"
+                  className="flex items-center gap-3 py-2.5 rounded-lg"
                 >
                   <div className={cn(
                     "w-8 h-8 rounded-lg flex items-center justify-center",
@@ -104,10 +116,11 @@ export function ChatHeader({
             })}
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
 
-      <div className="flex items-center gap-2">
-        {/* Could add share/export buttons here */}
+        {/* User Avatar */}
+        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-accent to-accent/80 flex items-center justify-center shadow-md border-2 border-card">
+          <span className="text-sm font-bold text-accent-foreground">U</span>
+        </div>
       </div>
     </header>
   );
