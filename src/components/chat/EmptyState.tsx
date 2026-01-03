@@ -34,14 +34,14 @@ export function EmptyState({ onSuggestionClick }: EmptyStateProps) {
       {/* Logo & Welcome */}
       <div className="flex flex-col items-center mb-10">
         <div className="relative mb-6">
-          <div className="absolute inset-0 bg-gradient-primary rounded-full blur-xl opacity-30 scale-150" />
+          <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl scale-150" />
           <img
             src={lumoraLogo}
             alt="Lumora"
-            className="relative h-16 w-16 rounded-2xl shadow-lg"
+            className="relative h-20 w-20 rounded-2xl shadow-xl"
           />
         </div>
-        <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2 tracking-tight">
+        <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3 tracking-tight">
           How can I help you today?
         </h1>
         <p className="text-muted-foreground text-center max-w-md">
@@ -49,25 +49,24 @@ export function EmptyState({ onSuggestionClick }: EmptyStateProps) {
         </p>
       </div>
 
-      {/* Suggestions Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl">
+      {/* Suggestions Grid - Card style like reference */}
+      <div className="w-full max-w-2xl space-y-3">
         {suggestions.map((suggestion, index) => (
           <button
             key={index}
             onClick={() => onSuggestionClick(suggestion.prompt)}
-            className="group flex items-start gap-3 p-4 rounded-xl border border-border bg-card/50 hover:bg-card hover:border-primary/20 transition-all duration-200 text-left"
+            className="group w-full flex items-center gap-4 p-4 rounded-2xl bg-card border border-border/50 shadow-sm hover:shadow-md hover:border-primary/20 transition-all duration-200 text-left"
           >
-            <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-              <suggestion.icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-            </div>
+            <div className="flex-shrink-0 w-5 h-5 rounded-md border-2 border-muted-foreground/30 group-hover:border-primary/50 transition-colors" />
             <div className="flex-1 min-w-0">
-              <h3 className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">
+              <h3 className="font-medium text-foreground group-hover:text-primary transition-colors">
                 {suggestion.title}
               </h3>
-              <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+              <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">
                 {suggestion.prompt}
               </p>
             </div>
+            <suggestion.icon className="h-5 w-5 text-muted-foreground/50 group-hover:text-primary/50 transition-colors" />
           </button>
         ))}
       </div>

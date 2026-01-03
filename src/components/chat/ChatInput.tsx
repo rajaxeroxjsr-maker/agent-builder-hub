@@ -83,25 +83,25 @@ export function ChatInput({ onSend, isLoading, model = "GPT-5" }: ChatInputProps
   const modelName = model.split('/').pop()?.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) || "GPT-5";
 
   return (
-    <div className="sticky bottom-0 bg-gradient-to-t from-background via-background to-transparent pt-4 pb-3 px-3 md:pt-6 md:pb-4 md:px-4">
+    <div className="sticky bottom-0 bg-background pt-4 pb-4 px-4">
       <div className="max-w-3xl mx-auto">
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           className={cn(
-            "relative flex flex-col bg-secondary/80 rounded-2xl md:rounded-3xl transition-all duration-200",
-            isFocused ? "ring-1 ring-primary/30" : "",
+            "relative flex flex-col bg-card rounded-2xl border border-border/50 shadow-lg transition-all duration-200",
+            isFocused ? "ring-2 ring-primary/20 border-primary/30" : "",
             dragOver && "ring-2 ring-primary bg-primary/5"
           )}
         >
-          {/* Attached files preview - ChatGPT style pills */}
+          {/* Attached files preview */}
           {attachedFiles.length > 0 && (
             <div className="flex flex-wrap gap-2 px-4 pt-3">
               {attachedFiles.map((file, index) => (
                 <div
                   key={index}
-                  className="relative group/file flex items-center gap-2 bg-background/80 rounded-2xl border border-border/50 overflow-hidden"
+                  className="relative group/file flex items-center gap-2 bg-secondary rounded-xl border border-border/50 overflow-hidden"
                 >
                   {file.type.startsWith('image/') && (
                     <>
@@ -120,7 +120,7 @@ export function ChatInput({ onSend, isLoading, model = "GPT-5" }: ChatInputProps
                       </div>
                       <button
                         onClick={() => removeFile(index)}
-                        className="absolute top-1 right-1 bg-background/90 hover:bg-destructive hover:text-destructive-foreground rounded-full p-1 transition-colors"
+                        className="absolute top-1 right-1 bg-card hover:bg-destructive hover:text-destructive-foreground rounded-full p-1 transition-colors shadow-sm"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -131,7 +131,7 @@ export function ChatInput({ onSend, isLoading, model = "GPT-5" }: ChatInputProps
             </div>
           )}
 
-          <div className="flex items-end gap-1 p-2">
+          <div className="flex items-end gap-2 p-3">
             {/* Hidden file input */}
             <input
               ref={fileInputRef}
@@ -151,7 +151,7 @@ export function ChatInput({ onSend, isLoading, model = "GPT-5" }: ChatInputProps
                     variant="ghost"
                     size="icon"
                     onClick={() => fileInputRef.current?.click()}
-                    className="h-9 w-9 shrink-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    className="h-10 w-10 shrink-0 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary"
                   >
                     <Paperclip className="h-5 w-5" />
                   </Button>
@@ -169,12 +169,12 @@ export function ChatInput({ onSend, isLoading, model = "GPT-5" }: ChatInputProps
               onKeyDown={handleKeyDown}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
-              placeholder={`Message ${modelName}...`}
+              placeholder={`Ask ${modelName}...`}
               disabled={isLoading}
               className={cn(
                 "flex-1 min-h-[44px] max-h-[200px] resize-none border-0 bg-transparent",
                 "focus-visible:ring-0 focus-visible:ring-offset-0",
-                "placeholder:text-muted-foreground/60 text-[15px] py-3 px-2",
+                "placeholder:text-muted-foreground/60 text-[15px] py-3 px-1",
                 "leading-relaxed"
               )}
               rows={1}
@@ -186,10 +186,10 @@ export function ChatInput({ onSend, isLoading, model = "GPT-5" }: ChatInputProps
                 disabled={(!input.trim() && attachedFiles.length === 0) || isLoading}
                 size="icon"
                 className={cn(
-                  "h-9 w-9 rounded-full shrink-0 transition-all duration-200",
+                  "h-10 w-10 rounded-xl shrink-0 transition-all duration-200 shadow-md",
                   (input.trim() || attachedFiles.length > 0) && !isLoading
-                    ? "bg-foreground text-background hover:bg-foreground/90"
-                    : "bg-muted-foreground/30 text-muted-foreground cursor-not-allowed"
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                    : "bg-muted text-muted-foreground cursor-not-allowed"
                 )}
               >
                 <ArrowUp className="h-5 w-5" />
@@ -198,7 +198,7 @@ export function ChatInput({ onSend, isLoading, model = "GPT-5" }: ChatInputProps
           </div>
         </div>
 
-        <p className="text-[10px] md:text-xs text-muted-foreground/50 text-center mt-2 md:mt-3">
+        <p className="text-[11px] text-muted-foreground/60 text-center mt-3">
           {modelName} can make mistakes. Check important info.
         </p>
       </div>
