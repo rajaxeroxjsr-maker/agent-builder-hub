@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Message, ImageAttachment } from "@/types/chat";
 import { toast } from "@/hooks/use-toast";
 
@@ -24,6 +24,15 @@ async function fileToBase64(file: File): Promise<string> {
 export function useChat({ onAddMessage, onUpdateMessage, initialMessages = [], model = "openai/gpt-5" }: UseChatProps = {}) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const stopGenerating = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+      setIsLoading(false);
+    }
+  }, []);
 
   const sendMessage = useCallback(async (content: string, files?: File[]) => {
     if ((!content.trim() && (!files || files.length === 0)) || isLoading) return;
@@ -50,6 +59,8 @@ export function useChat({ onAddMessage, onUpdateMessage, initialMessages = [], m
     setIsLoading(true);
 
     try {
+      abortControllerRef.current = new AbortController();
+      
       const response = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
@@ -64,6 +75,7 @@ export function useChat({ onAddMessage, onUpdateMessage, initialMessages = [], m
             images: m.images,
           })),
         }),
+        signal: abortControllerRef.current.signal,
       });
 
       if (!response.ok) {
@@ -128,6 +140,10 @@ export function useChat({ onAddMessage, onUpdateMessage, initialMessages = [], m
         }
       }
     } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        // User stopped the generation, don't show error
+        return;
+      }
       console.error("Chat error:", error);
       toast({
         title: "Error",
@@ -136,6 +152,7 @@ export function useChat({ onAddMessage, onUpdateMessage, initialMessages = [], m
       });
       setMessages((prev) => prev.filter((m) => m.content !== ""));
     } finally {
+      abortControllerRef.current = null;
       setIsLoading(false);
     }
   }, [messages, isLoading, onAddMessage, onUpdateMessage, model]);
@@ -152,6 +169,7 @@ export function useChat({ onAddMessage, onUpdateMessage, initialMessages = [], m
     messages,
     isLoading,
     sendMessage,
+    stopGenerating,
     clearChat,
     setMessagesFromConversation,
   };

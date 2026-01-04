@@ -38,7 +38,7 @@ export function ChatContainer({ initialMessage }: ChatContainerProps) {
     deleteConversation,
   } = useConversations();
 
-  const { messages, isLoading, sendMessage, setMessagesFromConversation } = useChat({
+  const { messages, isLoading, sendMessage, stopGenerating, setMessagesFromConversation } = useChat({
     model,
     onAddMessage: (message) => {
       if (activeConversationId) {
@@ -190,6 +190,7 @@ export function ChatContainer({ initialMessage }: ChatContainerProps) {
 
         <ChatInput 
           onSend={handleSendMessage} 
+          onStop={stopGenerating}
           isLoading={isLoading} 
           model={model}
         />
