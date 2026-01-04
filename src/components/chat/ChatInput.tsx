@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowUp, Paperclip, X, ImageIcon, FileText, Globe } from "lucide-react";
+import { ArrowUp, Paperclip, X, Square } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -12,11 +12,12 @@ import {
 
 interface ChatInputProps {
   onSend: (message: string, files?: File[]) => void;
+  onStop?: () => void;
   isLoading: boolean;
   model?: string;
 }
 
-export function ChatInput({ onSend, isLoading, model = "GPT-5" }: ChatInputProps) {
+export function ChatInput({ onSend, onStop, isLoading, model = "GPT-5" }: ChatInputProps) {
   const [input, setInput] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
@@ -181,19 +182,29 @@ export function ChatInput({ onSend, isLoading, model = "GPT-5" }: ChatInputProps
             />
 
             <div className="flex items-center gap-1">
-              <Button
-                onClick={handleSubmit}
-                disabled={(!input.trim() && attachedFiles.length === 0) || isLoading}
-                size="icon"
-                className={cn(
-                  "h-10 w-10 rounded-xl shrink-0 transition-all duration-200 shadow-md",
-                  (input.trim() || attachedFiles.length > 0) && !isLoading
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                    : "bg-muted text-muted-foreground cursor-not-allowed"
-                )}
-              >
-                <ArrowUp className="h-5 w-5" />
-              </Button>
+              {isLoading ? (
+                <Button
+                  onClick={onStop}
+                  size="icon"
+                  className="h-10 w-10 rounded-xl shrink-0 transition-all duration-200 shadow-md bg-foreground text-background hover:bg-foreground/90"
+                >
+                  <Square className="h-4 w-4 fill-current" />
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!input.trim() && attachedFiles.length === 0}
+                  size="icon"
+                  className={cn(
+                    "h-10 w-10 rounded-xl shrink-0 transition-all duration-200 shadow-md",
+                    input.trim() || attachedFiles.length > 0
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "bg-muted text-muted-foreground cursor-not-allowed"
+                  )}
+                >
+                  <ArrowUp className="h-5 w-5" />
+                </Button>
+              )}
             </div>
           </div>
         </div>
