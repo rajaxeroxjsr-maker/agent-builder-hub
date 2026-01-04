@@ -14,7 +14,11 @@ import { SettingsDialog } from "./SettingsDialog";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
-export function ChatContainer() {
+interface ChatContainerProps {
+  initialMessage?: string;
+}
+
+export function ChatContainer({ initialMessage }: ChatContainerProps) {
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -66,6 +70,18 @@ export function ChatContainer() {
       });
     }
   }, [messages, isLoading]);
+
+  // Handle initial message from landing page
+  const initialMessageSent = useRef(false);
+  useEffect(() => {
+    if (initialMessage && !initialMessageSent.current) {
+      initialMessageSent.current = true;
+      const convId = createConversation();
+      if (convId) {
+        sendMessage(initialMessage);
+      }
+    }
+  }, [initialMessage, createConversation, sendMessage]);
 
   // Close sidebar when selecting a conversation on mobile
   const handleSelectConversation = (id: string) => {

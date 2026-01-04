@@ -4,14 +4,20 @@ import Landing from "./Landing";
 
 const Index = () => {
   const [showChat, setShowChat] = useState(false);
+  const [initialMessage, setInitialMessage] = useState<string | undefined>();
+
+  const handleEnter = (message?: string) => {
+    setInitialMessage(message);
+    setShowChat(true);
+  };
 
   if (!showChat) {
-    return <Landing onEnter={() => setShowChat(true)} />;
+    return <Landing onEnter={handleEnter} />;
   }
 
   return (
     <div className="animate-fade-in">
-      <ChatContainer />
+      <ChatContainer initialMessage={initialMessage} />
     </div>
   );
 };
