@@ -1,20 +1,43 @@
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import lumoraLogo from "@/assets/lumora-logo.png";
 
 interface LandingProps {
-  onEnter: () => void;
+  onEnter: (initialMessage?: string) => void;
 }
 
 const Landing = ({ onEnter }: LandingProps) => {
   const [isExiting, setIsExiting] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const navigate = useNavigate();
 
   const handleTryClick = () => {
     setIsExiting(true);
     setTimeout(() => {
       onEnter();
     }, 500);
+  };
+
+  const handleAskSubmit = () => {
+    if (inputValue.trim()) {
+      setIsExiting(true);
+      setTimeout(() => {
+        onEnter(inputValue.trim());
+      }, 500);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleAskSubmit();
+    }
+  };
+
+  const handleLogin = () => {
+    navigate("/auth");
   };
 
   const navLinks = [
@@ -41,10 +64,8 @@ const Landing = ({ onEnter }: LandingProps) => {
           <span className="text-xl font-semibold tracking-tight">Lumora</span>
         </div>
         <div className="flex items-center gap-4">
-          <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
-            <Search className="h-5 w-5" />
-          </button>
           <Button
+            onClick={handleLogin}
             variant="secondary"
             className="bg-white text-black hover:bg-white/90 rounded-full px-6"
           >
@@ -88,6 +109,7 @@ const Landing = ({ onEnter }: LandingProps) => {
               Try Lumora ↗
             </Button>
             <Button
+              onClick={handleLogin}
               variant="ghost"
               className="text-white hover:text-white hover:bg-white/10 rounded-full px-6 py-6 text-base"
             >
@@ -114,13 +136,24 @@ const Landing = ({ onEnter }: LandingProps) => {
           </div>
         </div>
 
-        {/* Bottom Chat Input Preview */}
+        {/* Bottom Chat Input */}
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-xl px-4">
           <div className="bg-zinc-900 rounded-full flex items-center px-6 py-4 border border-white/10">
-            <span className="text-white/40 flex-1">Ask Lumora</span>
-            <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center">
-              <span className="text-white/60">↑</span>
-            </div>
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask Lumora"
+              className="flex-1 bg-transparent text-white placeholder:text-white/40 outline-none"
+            />
+            <button
+              onClick={handleAskSubmit}
+              disabled={!inputValue.trim()}
+              className="w-8 h-8 bg-white/10 hover:bg-white/20 disabled:opacity-50 rounded-full flex items-center justify-center transition-colors"
+            >
+              <ArrowUp className="h-4 w-4 text-white/60" />
+            </button>
           </div>
         </div>
       </main>
